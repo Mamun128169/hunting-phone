@@ -6,9 +6,13 @@ const searchBtn = document.getElementById("search-btn");
 const phoneCardContainer = document.getElementById("phones-container");
 const showAllBtn = document.getElementById("show-more-btn");
 const searchInput = document.getElementById("search-input");
+const notFoundContainer = document.getElementById("not-found-container");
 
 // function for default phone
 const defaultLoadedPhone = async () => {
+  const defaultPhoneUrl =
+    "https://openapi.programming-hero.com/api/phone/apple_iphone_13_pro_max-11089";
+
   const res = await fetch(defaultPhoneUrl);
   const data = await res.json();
   const phone = data.data;
@@ -45,10 +49,7 @@ const displayPhone = (phone) => {
                   <button class="btn btn-primary px-6" onclick="handleShowDetails('${phone.slug}')">Show Details</button>
                   </div>
                   </div>
-                  `;
-
-  // Clear the previous phones and add new one
-  //  phoneCardContainer.innerHTML = "";
+  `;
 
   phoneCardContainer.appendChild(div);
 };
@@ -58,10 +59,37 @@ const loadPhone = async (searchText, isShowAll) => {
   const res = await fetch(url);
   const data = await res.json();
   let phones = data.data;
-  // console.log(phones);
 
   // Clear the previous phones and add new one
   phoneCardContainer.innerHTML = "";
+
+  //  hide the error message initially
+  notFoundContainer.classList.add("hidden");
+
+  // show a not found card if no result found
+  if (phones.length === 0 || searchText === "") {
+    notFoundContainer.classList.remove("hidden");
+    const mainDiv = notFoundContainer.querySelector("div");
+    console.log(mainDiv);
+
+    // clear the previous error message
+    mainDiv.innerHTML = "";
+
+    const notFoundDiv = document.createElement("div");
+    notFoundDiv.classList =
+      "w-[100%] mx-auto h-[50%] flex justify-center items-center px-3 md:px-6";
+    notFoundDiv.innerHTML = `
+    <div>
+      <img src="./images/7265556.webp">
+      <h2 class="text-xl md:text-3xl lg:text-5xl text-center font-bold ml-4">No Result Found!</h2>
+    </div>
+    `;
+
+    mainDiv.appendChild(notFoundDiv);
+    toggleLoadingSpinner(false);
+    showAllBtn.classList.add("hidden");
+    return;
+  }
 
   //display showAll btn if there are more then 12
   if (phones.length > 12 && !isShowAll) {
@@ -82,6 +110,7 @@ const loadPhone = async (searchText, isShowAll) => {
   toggleLoadingSpinner(false);
 };
 
+// handle the search button
 searchBtn.addEventListener("click", () => {
   toggleLoadingSpinner(true);
 
@@ -89,6 +118,7 @@ searchBtn.addEventListener("click", () => {
   let searchText = searchInput.value;
   loadPhone(searchText);
 });
+
 
 const toggleLoadingSpinner = (isLoading) => {
   const loader = document.getElementById("loader");
@@ -100,10 +130,12 @@ const toggleLoadingSpinner = (isLoading) => {
   }
 };
 
+
 const handleShowAll = () => {
   let searchText = searchInput.value;
   loadPhone(searchText, true);
 };
+
 
 const handleShowDetails = async (id) => {
   const url = `https://openapi.programming-hero.com/api/phone/${id}`;
@@ -117,6 +149,7 @@ const handleShowDetails = async (id) => {
   showDetails(phone);
   show_phone_modal.showModal();
 };
+
 
 const showDetails = (phone) => {
   const modalBoxContainer = document.getElementById("modal-box");
@@ -151,6 +184,14 @@ const showDetails = (phone) => {
       <p class="text-sm">
        <span class="text-lg font-semibold text-gray-700">releaseDate:</span>
        ${phone.releaseDate}
+      </p>
+      <p class="text-sm">
+       <span class="text-lg font-semibold text-gray-700">GPS:</span>
+       ${phone.others?.GPS ? phone.others.GPS : "No GPS Available"}
+      </p>
+      <p class="text-sm">
+       <span class="text-lg font-semibold text-gray-700">USB:</span>
+       ${phone.others?.USB || "No USB Ports Available"}
       </p>
     </div>
     <div class="modal-action self-end">
