@@ -81,7 +81,7 @@ const loadPhone = async (searchText, isShowAll) => {
     notFoundDiv.innerHTML = `
     <div>
       <img src="./images/7265556.webp">
-      <h2 class="text-xl md:text-3xl lg:text-5xl text-center font-bold ml-4">No Result Found!</h2>
+      <h2 class="text-xl text-red-800 md:text-3xl lg:text-5xl text-center font-bold ml-4">No Result Found!</h2>
     </div>
     `;
 
